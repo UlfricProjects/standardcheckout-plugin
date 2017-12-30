@@ -32,4 +32,8 @@ public class StandardCheckoutPlugin extends JavaPlugin {
 		return getConfig().getString("standard-checkout-gateway");
 	}
 
+	public String getToken() {
+		return getConfig().getString("standard-checkout-token");
+	}
+
 }

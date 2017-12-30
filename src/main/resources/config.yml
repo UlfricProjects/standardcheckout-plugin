@@ -1,0 +1,3 @@
+standard-checkout-toke: YOUR_WEBSTORE_TOKEN_HERE
+standard-checkout-gateway: https://standardcheckout.com
+standard-checkout-webstore: YOUR_WEBSTORE_NAME_HERE

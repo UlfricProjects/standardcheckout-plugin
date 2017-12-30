@@ -32,7 +32,7 @@ public class StandardCheckoutClient {
 		StandardCheckoutPlugin plugin = StandardCheckoutPlugin.getInstance();
 
 		if (request.getScoToken() == null) {
-			String token = plugin.getConfig().getString("standard-checkout-token");
+			String token = plugin.getToken();
 			request.setScoToken(token);
 		}
 
