@@ -1,0 +1,7 @@
+name: StandardCheckout
+main: com.standardcheckout.plugin.StandardCheckoutPlugin
+version: ${project.version}
+author: Ulfric LLC
+website: standardcheckout.com
+description: In-app purchases for Minecraft
+depends: [BuycraftX]
