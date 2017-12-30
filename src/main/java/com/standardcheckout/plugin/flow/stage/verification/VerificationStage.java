@@ -65,7 +65,7 @@ public class VerificationStage extends InventoryStage {
 		for (Item item : cart.getItems()) {
 			Package packge = listing.getPackageById(item.getId());
 			if (packge != null) {
-				total.add(packge.getEffectivePrice().multiply(quantity(item)));
+				total = total.add(packge.getEffectivePrice().multiply(quantity(item)));
 			}
 		}
 		return total.setScale(2, RoundingMode.HALF_UP);
