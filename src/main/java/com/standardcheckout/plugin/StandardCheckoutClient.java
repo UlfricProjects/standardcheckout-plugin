@@ -5,7 +5,7 @@ import java.io.IOException;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import com.google.gson.Gson;
-import com.ulfric.buycraft.sco.model.StandardCheckoutChargeError;
+import com.ulfric.buycraft.sco.model.StandardCheckoutError;
 import com.ulfric.buycraft.sco.model.StandardCheckoutChargeRequest;
 import com.ulfric.buycraft.sco.model.StandardCheckoutChargeResponse;
 
@@ -58,7 +58,7 @@ public class StandardCheckoutClient {
 
 	private StandardCheckoutChargeResponse internalError() {
 		StandardCheckoutChargeResponse response = new StandardCheckoutChargeResponse();
-		response.setError(StandardCheckoutChargeError.INTERNAL_ERROR);
+		response.setError(StandardCheckoutError.INTERNAL_ERROR);
 		return response;
 	}
 

@@ -1,5 +1,8 @@
 package com.standardcheckout.plugin.flow.stage.verification;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.text.NumberFormat;
 import java.util.Arrays;
 
 import org.bukkit.Bukkit;
@@ -12,6 +15,7 @@ import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.plugin.java.JavaPlugin;
 
 import com.standardcheckout.plugin.flow.FlowContext;
 import com.standardcheckout.plugin.flow.MutableFlowContext;
@@ -19,10 +23,16 @@ import com.standardcheckout.plugin.flow.stage.InventoryStage;
 import com.standardcheckout.plugin.flow.stage.Stage;
 import com.standardcheckout.plugin.flow.stage.purchase.PurchaseStage;
 import com.standardcheckout.plugin.language.Tell;
+import com.standardcheckout.plugin.model.Cart;
+import com.ulfric.buycraft.model.Item;
+
+import net.buycraft.plugin.bukkit.BuycraftPlugin;
+import net.buycraft.plugin.data.Package;
+import net.buycraft.plugin.shared.tasks.ListingUpdateTask;
 
 public class VerificationStage extends InventoryStage {
 
-	private static final String VERIFY_PURCHASE_NAME = ChatColor.DARK_GREEN + "" + ChatColor.BOLD + "Verify Purchase";
+	private static final String VERIFY_PURCHASE_NAME = ChatColor.DARK_GREEN + "" + ChatColor.BOLD + "Verify Purchase for ";
 
 	private Inventory inventory;
 
@@ -33,10 +43,13 @@ public class VerificationStage extends InventoryStage {
 	@Override
 	public void play() {
 		Player player = context.getRequiredPlayer();
+		Cart cart = context.getBean(Cart.class);
+		BigDecimal cost = calculateCost(cart);
+		String costString = BigDecimal.ZERO.compareTo(cost) == 0 ? "UNKNOWN PRICE" : NumberFormat.getCurrencyInstance().format(cost);
 		inventory = Bukkit.createInventory(player, InventoryType.DISPENSER, ChatColor.BOLD + "Standard Checkout");
 		ItemStack verificationItem = new ItemStack(Material.EMERALD);
 		ItemMeta meta = verificationItem.getItemMeta();
-		meta.setDisplayName(VERIFY_PURCHASE_NAME);
+		meta.setDisplayName(VERIFY_PURCHASE_NAME + costString);
 		meta.setLore(Arrays.asList(
 				"",
 				ChatColor.YELLOW + "To confirm your purchase",
@@ -44,6 +57,22 @@ public class VerificationStage extends InventoryStage {
 				ChatColor.YELLOW + "press the ESC key."));
 		verificationItem.setItemMeta(meta);
 		inventory.setItem(4, verificationItem);
+	}
+
+	private BigDecimal calculateCost(Cart cart) {
+		BigDecimal total = BigDecimal.ZERO;
+		ListingUpdateTask listing = JavaPlugin.getPlugin(BuycraftPlugin.class).getListingUpdateTask();
+		for (Item item : cart.getItems()) {
+			Package packge = listing.getPackageById(item.getId());
+			if (packge != null) {
+				total.add(packge.getEffectivePrice().multiply(quantity(item)));
+			}
+		}
+		return total.setScale(2, RoundingMode.HALF_UP);
+	}
+
+	private BigDecimal quantity(Item item) {
+		return item.getQuantity() == null || item.getQuantity().equals(0) ? BigDecimal.ONE : BigDecimal.valueOf(item.getQuantity());
 	}
 
 	@Override
