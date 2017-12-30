@@ -21,7 +21,14 @@ public abstract class InventoryStage extends Stage {
 
 	public abstract void clickInventory(InventoryClickEvent event);
 
-	protected boolean compareInventories(Inventory o1, Inventory o2) {
+	protected abstract Inventory getInventory();
+
+	protected boolean isInventoryOpen(HumanEntity entity) {
+
+		return compareInventories(entity.getOpenInventory().getTopInventory(), getInventory());
+	}
+
+	private boolean compareInventories(Inventory o1, Inventory o2) {
 		if (o1 == o2) {
 			return true;
 		}
@@ -31,12 +38,6 @@ public abstract class InventoryStage extends Stage {
 		}
 
 		return o1.getType() == o2.getType() && Objects.equals(o1.getTitle(), o2.getTitle());
-	}
-
-	protected abstract Inventory getInventory();
-
-	protected boolean isInventoryOpen(HumanEntity entity) {
-		return compareInventories(entity.getOpenInventory().getTopInventory(), getInventory());
 	}
 
 }

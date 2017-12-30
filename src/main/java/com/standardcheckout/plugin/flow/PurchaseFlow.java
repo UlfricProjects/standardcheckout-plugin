@@ -89,6 +89,7 @@ public class PurchaseFlow implements Closeable {
 		MetadataValue metadata = new FixedMetadataValue(StandardCheckoutPlugin.getInstance(), this);
 		player.setMetadata(METADATA_KEY, metadata);
 
+		this.callback = callback;
 		this.player = new PlayerReference(player);
 		this.context = new MutableFlowContext(this, this.player);
 		Cart cart = new Cart();
@@ -108,6 +109,9 @@ public class PurchaseFlow implements Closeable {
 	}
 
 	public void finish(boolean success) {
+		close();
+		stage = null;
+
 		if (callback != null) {
 			if (success) {
 				callback.success(player.getOffline());
@@ -115,9 +119,6 @@ public class PurchaseFlow implements Closeable {
 				callback.failure(player.getOffline());
 			}
 		}
-
-		close();
-		stage = null;
 	}
 
 	public void resume() {
@@ -129,9 +130,14 @@ public class PurchaseFlow implements Closeable {
 	public void next() {
 		failIfFinished();
 
-		stage = stage.next();
-		if (stage != null) {
-			stage.play();
+		Stage stage = this.stage;
+		this.stage = null;
+		stage.close();
+		this.stage = stage.next();
+		if (this.stage != null) {
+			this.stage.play();
+		} else {
+			finish(false);
 		}
 	}
 

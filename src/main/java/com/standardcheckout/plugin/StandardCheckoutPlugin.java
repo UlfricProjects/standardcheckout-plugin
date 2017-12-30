@@ -18,6 +18,7 @@ public class StandardCheckoutPlugin extends JavaPlugin {
 		saveDefaultConfig();
 		this.client = new StandardCheckoutClient();
 		Bukkit.getPluginManager().registerEvents(new PurchaseFlowListener(), this);
+		Bukkit.getPluginManager().registerEvents(new Demo(), this);
 	}
 
 	public StandardCheckoutClient getClient() {

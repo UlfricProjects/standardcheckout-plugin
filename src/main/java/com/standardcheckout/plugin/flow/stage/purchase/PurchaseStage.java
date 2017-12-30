@@ -21,6 +21,7 @@ import com.standardcheckout.plugin.language.Tell;
 import com.standardcheckout.plugin.model.Cart;
 import com.ulfric.buycraft.sco.model.StandardCheckoutChargeRequest;
 import com.ulfric.buycraft.sco.model.StandardCheckoutChargeResponse;
+import com.ulfric.buycraft.sco.model.StandardCheckoutError;
 
 public class PurchaseStage extends InventoryStage {
 
@@ -56,16 +57,20 @@ public class PurchaseStage extends InventoryStage {
 
 		Player player = context.getRequiredPlayer();
 		inventory = Bukkit.createInventory(player, 9, ChatColor.BOLD + "Standard Checkout");
-		visualTask = plugin.getServer().getScheduler().runTaskTimer(plugin, this::playVisual, 5L, 11L);
+		for (int x = 0; x < inventory.getSize(); x++) {
+			inventory.setItem(x, VISUAL_ITEM_2);
+		}
+		player.openInventory(inventory);
+		visualTask = plugin.getServer().getScheduler().runTaskTimer(plugin, this::playVisual, 4L, 10L);
 
 		if (purchaseTask == null) {
-			purchaseTask = plugin.getServer().getScheduler().runTaskAsynchronously(plugin, this::chargeUser);
+			purchaseTask = plugin.getServer().getScheduler().runTaskLaterAsynchronously(plugin, this::chargeUser, 2L);
 		}
 	}
 
 	private void playVisual() {
 		inventory.setItem(visualSlot, alternate ? VISUAL_ITEM_2 : VISUAL_ITEM_1);
-		if (visualSlot++ == inventory.getSize()) {
+		if (++visualSlot == inventory.getSize()) {
 			visualSlot = 0;
 			alternate = !alternate;
 		}
@@ -96,41 +101,44 @@ public class PurchaseStage extends InventoryStage {
 
 	@Override
 	public Stage next() {
+		context.getPlayer().ifPresent(player -> {
+			if (isInventoryOpen(player)) {
+				player.closeInventory(); // TODO idea - giant checkmark as part of complete inside a chest instead
+			}
+		});
+
 		StandardCheckoutChargeResponse response = context.getBean(StandardCheckoutChargeResponse.class);
 		if (response.getState()) {
-			context.getPlayer().ifPresent(player -> {
-				if (compareInventories(inventory, player.getOpenInventory().getTopInventory())) {
-					player.closeInventory(); // TODO idea - giant checkmark inside a chest instead
-				}
-			});
 			return new PurchaseCompleteStage(context);
 		}
 
 		if (response.getError() != null) {
+			if (response.getError() == StandardCheckoutError.PAYMENT_FAILED) {
+				return new PurchaseFailedStage(context);
+			}
 			new RuntimeException("StandardCheckout error " + response.getError()).printStackTrace(); // TODO proper error handling
 			return new ErrorStage(context);
 		}
 
-		// TODO
-		return null;
+		return new PaymentDetailsRequiredStage(context);
 	}
 
 	@Override
 	public void close() {
-		inventory = null;
 		visualTask.cancel();
-		visualTask = null;
 		visualSlot = 0;
 
-		if (context.getBean(StandardCheckoutChargeResponse.class) == null) {
-			context.getPlayer().ifPresent(player -> {
-				player.closeInventory();
+		context.getPlayer().ifPresent(player -> {
+			if (context.getBean(StandardCheckoutChargeResponse.class) == null) {
 				Tell.sendMessages(player, ChatColor.YELLOW + "We'll let you know in chat when your", ChatColor.YELLOW + "purchase is completed.");
-			});
-		}
+			}
+
+			if (isInventoryOpen(player)) {
+				player.closeInventory();
+			}
+		});
 	}
 
-	@SuppressWarnings("deprecation")
 	@Override
 	public void clickInventory(InventoryClickEvent event) {
 		if (!isInventoryOpen(event.getWhoClicked())) {

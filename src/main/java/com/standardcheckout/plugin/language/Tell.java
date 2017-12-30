@@ -3,34 +3,57 @@ package com.standardcheckout.plugin.language;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 
+import net.md_5.bungee.api.chat.BaseComponent;
+import net.md_5.bungee.api.chat.ClickEvent;
+import net.md_5.bungee.api.chat.ComponentBuilder;
+import net.md_5.bungee.api.chat.TextComponent;
+
 public class Tell {
 
 	private final static int CENTER_PX = 154;
 
-	public static void sendMessages(CommandSender target, String... messages) {
-		sendFullWidth(target, '=');
-		sendCenteredMessage(target, ChatColor.GREEN + "" + ChatColor.BOLD + "StandardCheckout");
+	public static void sendMessages(CommandSender target, Object... messages) {
+		sendFullWidth(target, '*');
+		sendCenteredMessage(target, ChatColor.GREEN + "" + ChatColor.BOLD + "Standard Checkout");
 		sendCenteredMessage(target, "");
-		for (String message : messages) {
+		for (Object message : messages) {
 			sendCenteredMessage(target, message);
 		}
-		sendFullWidth(target, '=');
+		sendFullWidth(target, '*');
 	}
 
 	private static void sendFullWidth(CommandSender target, char character) {
 		int length = DefaultFontInfo.getDefaultFontInfo(character).getLength();
-		int count = CENTER_PX * 2 / length;
 		StringBuilder message = new StringBuilder();
-		for (int x = 0; x < count; x ++) {
+		for (int x = 0; x < CENTER_PX * 2; x += length) {
 			message.append(character);
 		}
 		target.sendMessage(message.toString());
 	}
 
-	private static void sendCenteredMessage(CommandSender target, String message) {
+	private static void sendCenteredMessage(CommandSender target, Object message) {
+		if (message instanceof String) {
+			target.sendMessage(withWhitespace((String) message));
+		} else if (message instanceof Link) {
+			Link link = (Link) message;
+			try {
+				BaseComponent[] components = new ComponentBuilder("")
+						.append(TextComponent.fromLegacyText(withWhitespace(link.getTitle())))
+						.event(new ClickEvent(ClickEvent.Action.OPEN_URL, link.getUrl()))
+						.create();
+				target.spigot().sendMessage(components);
+			} catch (Exception exception) {
+				sendCenteredMessage(target, link.getTitle());
+				sendCenteredMessage(target, ChatColor.getLastColors(link.getTitle()) + link.getUrl());
+			}
+		} else {
+			throw new IllegalArgumentException(message + " is not a " + String.class + " or a " + Link.class);
+		}
+	}
+
+	private static String withWhitespace(String message) {
 		if (message.isEmpty()) {
-			target.sendMessage(message);
-			return;
+			return message;
 		}
 
 		int messagePxSize = 0;
@@ -63,7 +86,7 @@ public class Tell {
 			padding.append(' ');
 			compensated += spaceLength;
 		}
-		target.sendMessage(padding + message);
+		return padding + message;
 	}
 
 	private Tell() {

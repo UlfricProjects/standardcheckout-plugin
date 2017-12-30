@@ -57,6 +57,7 @@ public class VerificationStage extends InventoryStage {
 				ChatColor.YELLOW + "press the ESC key."));
 		verificationItem.setItemMeta(meta);
 		inventory.setItem(4, verificationItem);
+		player.openInventory(inventory);
 	}
 
 	private BigDecimal calculateCost(Cart cart) {
@@ -87,7 +88,16 @@ public class VerificationStage extends InventoryStage {
 
 	@Override
 	public void close() {
-		context.getPlayer().ifPresent(player -> Tell.sendMessages(player, ChatColor.YELLOW + "Your purchase was cancelled."));
+		context.getPlayer().ifPresent(player -> {
+			if (isInventoryOpen(player)) {
+				player.closeInventory();
+			}
+
+			VerificationContext verification = context.getBean(VerificationContext.class);
+			if (verification == null || !verification.getVerified()) {
+				Tell.sendMessages(player, ChatColor.YELLOW + "Your purchase was cancelled.");
+			}
+		});
 	}
 
 	@Override
@@ -117,7 +127,7 @@ public class VerificationStage extends InventoryStage {
 		}
 
 		ItemMeta meta = item.getItemMeta();
-		if (!meta.hasDisplayName() || !meta.getDisplayName().equals(VERIFY_PURCHASE_NAME)) {
+		if (!meta.hasDisplayName() || !meta.getDisplayName().startsWith(VERIFY_PURCHASE_NAME)) {
 			return;
 		}
 
