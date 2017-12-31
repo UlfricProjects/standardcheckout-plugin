@@ -101,15 +101,22 @@ public class PurchaseStage extends InventoryStage {
 
 	@Override
 	public Stage next() {
-		context.getPlayer().ifPresent(player -> {
-			if (isInventoryOpen(player)) {
-				player.closeInventory(); // TODO idea - giant checkmark as part of complete inside a chest instead
-			}
-		});
+		boolean open = !inventory.getViewers().isEmpty();
+		if (open) {
+			context.getPlayer().ifPresent(player -> {
+				if (isInventoryOpen(player)) {
+					player.closeInventory();
+				}
+			});
+		}
 
 		StandardCheckoutChargeResponse response = context.getBean(StandardCheckoutChargeResponse.class);
 		if (response.getState()) {
-			return new PurchaseCompleteStage(context);
+			if (open) {
+				return new PurchaseSuccessStage(context);
+			} else {
+				return new PackageDeliveryStage(context);
+			}
 		}
 
 		if (response.getError() != null) {
@@ -131,10 +138,6 @@ public class PurchaseStage extends InventoryStage {
 		context.getPlayer().ifPresent(player -> {
 			if (context.getBean(StandardCheckoutChargeResponse.class) == null) {
 				Tell.sendMessages(player, ChatColor.YELLOW + "We'll let you know in chat when your", ChatColor.YELLOW + "purchase is completed.");
-			}
-
-			if (isInventoryOpen(player)) {
-				player.closeInventory();
 			}
 		});
 	}

@@ -3,8 +3,6 @@ package com.standardcheckout.plugin.flow.stage;
 import java.io.Closeable;
 import java.util.Objects;
 
-import org.bukkit.event.player.PlayerQuitEvent;
-
 import com.standardcheckout.plugin.flow.FlowContext;
 
 public abstract class Stage implements Closeable {
@@ -22,9 +20,5 @@ public abstract class Stage implements Closeable {
 
 	@Override
 	public abstract void close();
-
-	public void leaveGame(PlayerQuitEvent event) {
-		context.flow().close();
-	}
 
 }

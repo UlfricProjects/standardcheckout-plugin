@@ -12,7 +12,7 @@ import org.bukkit.metadata.MetadataValue;
 
 import com.standardcheckout.plugin.StandardCheckoutPlugin;
 import com.standardcheckout.plugin.flow.stage.Stage;
-import com.standardcheckout.plugin.flow.stage.verification.VerificationStage;
+import com.standardcheckout.plugin.flow.stage.confirmation.ConfirmationStage;
 import com.standardcheckout.plugin.internal.PlayerReference;
 import com.standardcheckout.plugin.model.Cart;
 import com.ulfric.buycraft.model.Item;
@@ -97,7 +97,7 @@ public class PurchaseFlow implements Closeable {
 		cart.setItems(items);
 		cart.setUsername(player.getName());
 		this.context.storeBean(cart);
-		this.stage = new VerificationStage(context);
+		this.stage = new ConfirmationStage(context);
 		this.stage.play();
 	}
 

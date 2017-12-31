@@ -1,6 +1,6 @@
-package com.standardcheckout.plugin.flow.stage.verification;
+package com.standardcheckout.plugin.flow.stage.confirmation;
 
-public class VerificationContext {
+public class ConfirmationContext {
 
 	private boolean verified;
 

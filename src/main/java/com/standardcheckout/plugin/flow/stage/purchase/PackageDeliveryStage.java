@@ -6,9 +6,9 @@ import com.standardcheckout.plugin.flow.FlowContext;
 import com.standardcheckout.plugin.flow.stage.FinalStage;
 import com.standardcheckout.plugin.language.Tell;
 
-public class PurchaseCompleteStage extends FinalStage {
+public class PackageDeliveryStage extends FinalStage {
 
-	public PurchaseCompleteStage(FlowContext context) {
+	public PackageDeliveryStage(FlowContext context) {
 		super(context);
 	}
 

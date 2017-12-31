@@ -49,7 +49,7 @@ public class StandardCheckoutClient {
 
 		try {
 			Response response = client.newCall(post).execute();
-			return gson.fromJson(response.body().charStream(), StandardCheckoutChargeResponse.class);
+			return gson.fromJson(response.body().string(), StandardCheckoutChargeResponse.class);
 		} catch (IOException exception) {
 			exception.printStackTrace(); // TODO error handling
 			return internalError();

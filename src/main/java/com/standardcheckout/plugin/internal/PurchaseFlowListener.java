@@ -1,5 +1,6 @@
 package com.standardcheckout.plugin.internal;
 
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 import org.bukkit.Bukkit;
@@ -19,22 +20,24 @@ import com.standardcheckout.plugin.flow.stage.Stage;
 
 public class PurchaseFlowListener implements Listener {
 
-	@EventHandler
-	public void on(InventoryCloseEvent event) {
-		useStage(event.getPlayer(), stage -> {
-			if (stage instanceof InventoryStage) {
-				InventoryStage inventoryStage = (InventoryStage) stage;
-				inventoryStage.closeInventory(event);
-			}
-		});
-	}
-
 	@EventHandler(ignoreCancelled = true)
 	public void on(InventoryClickEvent event) {
 		useStage(event.getWhoClicked(), stage -> {
 			if (stage instanceof InventoryStage) {
 				InventoryStage inventoryStage = (InventoryStage) stage;
 				inventoryStage.clickInventory(event);
+			}
+		});
+	}
+
+	@EventHandler
+	public void on(InventoryCloseEvent event) {
+		useStageAndFlow(event.getPlayer(), (flow, stage) -> {
+			if (stage instanceof InventoryStage) {
+				InventoryStage inventoryStage = (InventoryStage) stage;
+				if (inventoryStage.isInventoryOpen(event.getPlayer())) {
+					flow.close();
+				}
 			}
 		});
 	}
@@ -49,6 +52,16 @@ public class PurchaseFlowListener implements Listener {
 		if (event.getPlugin() instanceof StandardCheckoutPlugin) {
 			for (Player player : Bukkit.getOnlinePlayers()) {
 				useFlow(player, PurchaseFlow::prematureEnd);
+			}
+		}
+	}
+
+	private void useStageAndFlow(HumanEntity player, BiConsumer<PurchaseFlow, Stage> callback) {
+		PurchaseFlow flow = PurchaseFlow.currentFlow(player);
+		if (flow != null && !flow.isFinished()) {
+			Stage stage = flow.getStage();
+			if (stage != null) {
+				callback.accept(flow, stage);
 			}
 		}
 	}

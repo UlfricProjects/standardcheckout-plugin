@@ -4,7 +4,6 @@ import java.util.Objects;
 
 import org.bukkit.entity.HumanEntity;
 import org.bukkit.event.inventory.InventoryClickEvent;
-import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.inventory.Inventory;
 
 import com.standardcheckout.plugin.flow.FlowContext;
@@ -15,16 +14,11 @@ public abstract class InventoryStage extends Stage {
 		super(context);
 	}
 
-	public void closeInventory(InventoryCloseEvent event) {
-		context.flow().close();
-	}
-
 	public abstract void clickInventory(InventoryClickEvent event);
 
 	protected abstract Inventory getInventory();
 
-	protected boolean isInventoryOpen(HumanEntity entity) {
-
+	public boolean isInventoryOpen(HumanEntity entity) {
 		return compareInventories(entity.getOpenInventory().getTopInventory(), getInventory());
 	}
 

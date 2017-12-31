@@ -1,4 +1,4 @@
-package com.standardcheckout.plugin.flow.stage.verification;
+package com.standardcheckout.plugin.flow.stage.confirmation;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -22,6 +22,7 @@ import com.standardcheckout.plugin.flow.MutableFlowContext;
 import com.standardcheckout.plugin.flow.stage.InventoryStage;
 import com.standardcheckout.plugin.flow.stage.Stage;
 import com.standardcheckout.plugin.flow.stage.purchase.PurchaseStage;
+import com.standardcheckout.plugin.helper.SoundHelper;
 import com.standardcheckout.plugin.language.Tell;
 import com.standardcheckout.plugin.model.Cart;
 import com.ulfric.buycraft.model.Item;
@@ -30,13 +31,13 @@ import net.buycraft.plugin.bukkit.BuycraftPlugin;
 import net.buycraft.plugin.data.Package;
 import net.buycraft.plugin.shared.tasks.ListingUpdateTask;
 
-public class VerificationStage extends InventoryStage {
+public class ConfirmationStage extends InventoryStage {
 
 	private static final String VERIFY_PURCHASE_NAME = ChatColor.DARK_GREEN + "" + ChatColor.BOLD + "Verify Purchase for ";
 
 	private Inventory inventory;
 
-	public VerificationStage(FlowContext context) {
+	public ConfirmationStage(FlowContext context) {
 		super(context);
 	}
 
@@ -78,7 +79,7 @@ public class VerificationStage extends InventoryStage {
 
 	@Override
 	public Stage next() {
-		VerificationContext verification = context.getBean(VerificationContext.class);
+		ConfirmationContext verification = context.getBean(ConfirmationContext.class);
 		if (verification == null || !verification.getVerified()) {
 			return null;
 		}
@@ -89,11 +90,7 @@ public class VerificationStage extends InventoryStage {
 	@Override
 	public void close() {
 		context.getPlayer().ifPresent(player -> {
-			if (isInventoryOpen(player)) {
-				player.closeInventory();
-			}
-
-			VerificationContext verification = context.getBean(VerificationContext.class);
+			ConfirmationContext verification = context.getBean(ConfirmationContext.class);
 			if (verification == null || !verification.getVerified()) {
 				Tell.sendMessages(player, ChatColor.YELLOW + "Your purchase was cancelled.");
 			}
@@ -131,11 +128,11 @@ public class VerificationStage extends InventoryStage {
 			return;
 		}
 
-		VerificationContext verification = context.getBean(VerificationContext.class);
+		ConfirmationContext verification = context.getBean(ConfirmationContext.class);
 		if (verification == null) {
 			if (context instanceof MutableFlowContext) {
 				MutableFlowContext mutable = (MutableFlowContext) context;
-				verification = new VerificationContext();
+				verification = new ConfirmationContext();
 				mutable.storeBean(verification);
 			}
 		}
@@ -143,6 +140,10 @@ public class VerificationStage extends InventoryStage {
 			verification.setVerified(true);
 		}
 
+		if (event.getWhoClicked() instanceof Player) {
+			Player player = (Player) event.getWhoClicked();
+			SoundHelper.tryToPlaySound(player, "UI_BUTTON_CLICK", 0.75F, 1);
+		}
 		context.flow().next();
 	}
 
