@@ -44,7 +44,7 @@ public class Tell {
 				target.spigot().sendMessage(components);
 			} catch (Exception exception) {
 				sendCenteredMessage(target, link.getTitle());
-				sendCenteredMessage(target, ChatColor.getLastColors(link.getTitle()) + link.getUrl());
+				sendCenteredMessage(target, ChatColor.getLastColors(link.getTitle()) + ChatColor.UNDERLINE + link.getUrl());
 			}
 		} else {
 			throw new IllegalArgumentException(message + " is not a " + String.class + " or a " + Link.class);
