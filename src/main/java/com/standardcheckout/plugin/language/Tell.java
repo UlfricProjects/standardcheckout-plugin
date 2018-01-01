@@ -37,12 +37,11 @@ public class Tell {
 		} else if (message instanceof Link) {
 			Link link = (Link) message;
 			try {
-				BaseComponent[] components = new ComponentBuilder("")
-						.append(TextComponent.fromLegacyText(withWhitespace(link.getTitle())))
-						.event(new ClickEvent(ClickEvent.Action.OPEN_URL, link.getUrl()))
-						.create();
-				target.spigot().sendMessage(components);
-			} catch (Exception exception) {
+				
+				TextComponent component = new TextComponent(TextComponent.fromLegacyText(withWhitespace(link.getTitle())));
+				component.setClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL, link.getUrl()));
+				target.spigot().sendMessage(component);
+			} catch (Exception thatsOk) {
 				sendCenteredMessage(target, link.getTitle());
 				sendCenteredMessage(target, ChatColor.getLastColors(link.getTitle()) + ChatColor.UNDERLINE + link.getUrl());
 			}

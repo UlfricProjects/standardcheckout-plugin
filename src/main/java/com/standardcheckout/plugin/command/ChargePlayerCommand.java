@@ -27,7 +27,7 @@ public class ChargePlayerCommand implements CommandExecutor {
 			return false;
 		}
 
-		// /chargeplayer packet item_name [$25 or id*quantity,id2,id3] command__to__run command__to__run
+		// /chargeplayer packet item_name [$25 or id*quantity,id2,id3] command__to__run command__to__run2 give__{name}__diamond__64
 
 		Player player = Bukkit.getPlayerExact(args[0]);
 		if (player == null) {
@@ -36,7 +36,7 @@ public class ChargePlayerCommand implements CommandExecutor {
 		}
 
 		PurchaseFlow.Builder builder = PurchaseFlow.builder()
-			.name(args[1]);
+			.name(args[1].replace('_', ' '));
 
 		String priceToParse = args[2];
 		if (priceToParse.startsWith("$")) {
