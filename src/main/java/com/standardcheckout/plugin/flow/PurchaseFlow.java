@@ -122,7 +122,12 @@ public class PurchaseFlow implements Closeable {
 		details.setName(name);
 		this.context.storeBean(details);
 		this.stage = new ConfirmationStage(context);
-		this.stage.play();
+
+		PurchaseFlowBeginEvent event = new PurchaseFlowBeginEvent(player);
+		StandardCheckoutPlugin.getInstance().getServer().getPluginManager().callEvent(event);
+		if (!event.isCancelled()) {
+			this.stage.play();
+		}
 	}
 
 	@Override
