@@ -5,11 +5,12 @@ import java.io.IOException;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import com.google.gson.Gson;
-import com.ulfric.buycraft.sco.model.StandardCheckoutError;
 import com.ulfric.buycraft.sco.model.StandardCheckoutChargeRequest;
 import com.ulfric.buycraft.sco.model.StandardCheckoutChargeResponse;
+import com.ulfric.buycraft.sco.model.StandardCheckoutError;
 
 import net.buycraft.plugin.bukkit.BuycraftPlugin;
+import okhttp3.CacheControl;
 import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -24,7 +25,7 @@ public class StandardCheckoutClient {
 	private final Gson gson = new Gson();
 
 	public StandardCheckoutChargeResponse charge(StandardCheckoutChargeRequest request) {
-		if (request.getBuycraftToken() == null) {
+		if (request.getBuycraftToken() == null && request.getPrice() == null) {
 			BuycraftPlugin buycraft = JavaPlugin.getPlugin(BuycraftPlugin.class);
 			request.setBuycraftToken(buycraft.getConfiguration().getServerKey());
 		}
@@ -43,13 +44,17 @@ public class StandardCheckoutClient {
 
 		String json = gson.toJson(request);
 		Request post = new Request.Builder()
+				.cacheControl(CacheControl.FORCE_NETWORK)
+				.addHeader("Accept", "application/json")
+				.addHeader("User-Agent", "StandardCheckout")
 				.url(plugin.getApiGateway() + "/api/charge")
 				.post(RequestBody.create(JSON, json))
 				.build();
 
 		try {
 			Response response = client.newCall(post).execute();
-			return gson.fromJson(response.body().string(), StandardCheckoutChargeResponse.class);
+			String body = response.body().string();
+			return gson.fromJson(body, StandardCheckoutChargeResponse.class);
 		} catch (IOException exception) {
 			exception.printStackTrace(); // TODO error handling
 			return internalError();

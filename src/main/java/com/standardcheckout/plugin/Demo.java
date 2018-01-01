@@ -16,22 +16,13 @@ import com.standardcheckout.plugin.flow.PurchaseFlow;
 
 public class Demo implements Listener {
 
-	public static void main(String[] args) {
-		BigDecimal cost = BigDecimal.valueOf(5);
-		System.out.println(cost.compareTo(BigDecimal.valueOf(500)));
-	}
-
 	@EventHandler
 	public void on(BlockBreakEvent event) {
 		Player player = event.getPlayer();
 
-		PurchaseFlow.builder().name("Diamonds").withItem(2673015, 1) // assumes you have a buycraft package with an id of
-																	// '1'
-																	// this is how price is calculated. additionally,
-																	// any
-																	// commands on the buycraft package will be run on
-																	// buycraft's
-																	// time via an automatic manual payment
+		PurchaseFlow.builder()
+				.name("Diamonds")
+				.price(BigDecimal.valueOf(20))
 				.callback(new PurchaseCallback() {
 					@Override
 					public void success(OfflinePlayer player) {

@@ -2,6 +2,7 @@ package com.standardcheckout.plugin.flow;
 
 import java.io.Closeable;
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -58,7 +59,7 @@ public class PurchaseFlow implements Closeable {
 				throw new IllegalArgumentException("either items or price must be specified, but not both");
 			}
 
-			return new PurchaseFlow(name, new ArrayList<>(items), player, callback);
+			return new PurchaseFlow(name, new ArrayList<>(items), price, player, callback);
 		}
 
 		public Builder name(String name) {
@@ -67,7 +68,7 @@ public class PurchaseFlow implements Closeable {
 		}
 
 		public Builder price(BigDecimal price) {
-			this.price = price;
+			this.price = price == null ? null : price.setScale(2, RoundingMode.HALF_UP);
 			return this;
 		}
 
@@ -96,18 +97,24 @@ public class PurchaseFlow implements Closeable {
 	private Stage stage;
 	private PurchaseCallback callback;
 
-	private PurchaseFlow(String name, List<Item> items, Player player, PurchaseCallback callback) {
+	private PurchaseFlow(String name, List<Item> items, BigDecimal price, Player player, PurchaseCallback callback) {
 		MetadataValue metadata = new FixedMetadataValue(StandardCheckoutPlugin.getInstance(), this);
 		player.setMetadata(METADATA_KEY, metadata);
 
 		this.callback = callback;
 		this.player = new PlayerReference(player);
 		this.context = new MutableFlowContext(this, this.player);
-		Cart cart = new Cart();
-		cart.setTitle(name);
-		cart.setItems(items);
-		cart.setUsername(player.getName());
-		this.context.storeBean(cart);
+		PurchaseDetails details = new PurchaseDetails();
+		if (!items.isEmpty()) {
+			Cart cart = new Cart();
+			cart.setTitle(name);
+			cart.setItems(items);
+			cart.setUsername(player.getName());
+			details.setCart(cart);
+		}
+		details.setPrice(price);
+		details.setName(name);
+		this.context.storeBean(details);
 		this.stage = new ConfirmationStage(context);
 		this.stage.play();
 	}

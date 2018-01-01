@@ -3,7 +3,47 @@ StandardCheckout Bukkit plugin
 
 # Examples
 
-## Starting a checkout flow
+## Starting a checkout flow that skips buycraft-related actions
+```
+public class Demo implements Listener {
+
+	@EventHandler
+	public void on(BlockBreakEvent event) {
+		Player player = event.getPlayer();
+
+		PurchaseFlow.builder()
+				.name("Diamonds")
+				.price(BigDecimal.valueOf(20))
+				.callback(new PurchaseCallback() {
+					@Override
+					public void success(OfflinePlayer player) {
+						Player online = player.getPlayer();
+						if (online == null) {
+							// you are responsible for handling this & making sure a player
+							// gets their items. the chances of this being true are pretty slim,
+							// but it could happen
+							Bukkit.getLogger().info("player is offline");
+							return;
+						}
+
+						Bukkit.getLogger().info("purchase success");
+						online.getInventory().addItem(new ItemStack(Material.DIAMOND_BLOCK, 64));
+					}
+
+					@Override
+					public void failure(OfflinePlayer player) {
+						Bukkit.getLogger().info("purchase failure");
+						// The plugin will handle messaging automatically you
+						// can add some special failure logic here if you so desire
+					}
+				}).begin(player);
+	}
+
+}
+
+```
+
+## Starting a checkout flow that communicates with buycraft
 ```
 public class Example implements CommandExecutor {
 

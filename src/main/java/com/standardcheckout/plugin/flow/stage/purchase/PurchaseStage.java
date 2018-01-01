@@ -15,10 +15,10 @@ import com.standardcheckout.plugin.StandardCheckoutClient;
 import com.standardcheckout.plugin.StandardCheckoutPlugin;
 import com.standardcheckout.plugin.flow.FlowContext;
 import com.standardcheckout.plugin.flow.MutableFlowContext;
+import com.standardcheckout.plugin.flow.PurchaseDetails;
 import com.standardcheckout.plugin.flow.stage.InventoryStage;
 import com.standardcheckout.plugin.flow.stage.Stage;
 import com.standardcheckout.plugin.language.Tell;
-import com.standardcheckout.plugin.model.Cart;
 import com.ulfric.buycraft.sco.model.StandardCheckoutChargeRequest;
 import com.ulfric.buycraft.sco.model.StandardCheckoutChargeResponse;
 import com.ulfric.buycraft.sco.model.StandardCheckoutError;
@@ -80,10 +80,11 @@ public class PurchaseStage extends InventoryStage {
 		StandardCheckoutPlugin plugin = StandardCheckoutPlugin.getInstance();
 		StandardCheckoutClient client = plugin.getClient();
 
-		Cart cart = context.getBean(Cart.class);
+		PurchaseDetails details = context.getBean(PurchaseDetails.class);
 		StandardCheckoutChargeRequest request = new StandardCheckoutChargeRequest();
-		request.setCart(cart);
-		request.setItemName(cart.getTitle());
+		request.setCart(details.getCart());
+		request.setPrice(details.getPrice());
+		request.setItemName(details.getCart() == null ? details.getName() : details.getCart().getTitle());
 		request.setPurchaser(context.getPlayerId());
 
 		StandardCheckoutChargeResponse response = client.charge(request);
@@ -114,7 +115,7 @@ public class PurchaseStage extends InventoryStage {
 		if (response.getState()) {
 			if (response.getError() != null) {
 				StandardCheckoutPlugin.getInstance().getLogger().severe(
-						"Successfully executed payment for " + context.getPlayerId() + ", but got error " + response.getState());
+						"Successfully executed payment for " + context.getPlayerId() + ", but got error " + response.getError());
 			}
 			if (open) {
 				return new PurchaseSuccessStage(context);

@@ -4,4 +4,8 @@ version: ${project.version}
 author: Ulfric LLC
 website: standardcheckout.com
 description: In-app purchases for Minecraft
-depends: [BuycraftX]
+softdepend: [BuycraftX]
+commands:
+  chargeplayer:
+    usage: /<command> <player> item_name [$25 or id*quantity,id2,id3] command__to__run command__to__run2 ...
+    permission: standardcheckout.chargeplayer

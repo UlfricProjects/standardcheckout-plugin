@@ -19,12 +19,12 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 import com.standardcheckout.plugin.flow.FlowContext;
 import com.standardcheckout.plugin.flow.MutableFlowContext;
+import com.standardcheckout.plugin.flow.PurchaseDetails;
 import com.standardcheckout.plugin.flow.stage.InventoryStage;
 import com.standardcheckout.plugin.flow.stage.Stage;
 import com.standardcheckout.plugin.flow.stage.purchase.PurchaseStage;
 import com.standardcheckout.plugin.helper.SoundHelper;
 import com.standardcheckout.plugin.language.Tell;
-import com.standardcheckout.plugin.model.Cart;
 import com.ulfric.buycraft.model.Item;
 
 import net.buycraft.plugin.bukkit.BuycraftPlugin;
@@ -44,7 +44,7 @@ public class ConfirmationStage extends InventoryStage {
 	@Override
 	public void play() {
 		Player player = context.getRequiredPlayer();
-		Cart cart = context.getBean(Cart.class);
+		PurchaseDetails cart = context.getBean(PurchaseDetails.class);
 		BigDecimal cost = calculateCost(cart);
 		String costString = BigDecimal.ZERO.compareTo(cost) == 0 ? "UNKNOWN PRICE" : NumberFormat.getCurrencyInstance().format(cost);
 		inventory = Bukkit.createInventory(player, InventoryType.DISPENSER, ChatColor.BOLD + "Standard Checkout");
@@ -61,10 +61,14 @@ public class ConfirmationStage extends InventoryStage {
 		player.openInventory(inventory);
 	}
 
-	private BigDecimal calculateCost(Cart cart) {
+	private BigDecimal calculateCost(PurchaseDetails cart) {
+		if (cart.getPrice() != null) {
+			return cart.getPrice().setScale(2, RoundingMode.HALF_UP);
+		}
+
 		BigDecimal total = BigDecimal.ZERO;
 		ListingUpdateTask listing = JavaPlugin.getPlugin(BuycraftPlugin.class).getListingUpdateTask();
-		for (Item item : cart.getItems()) {
+		for (Item item : cart.getCart().getItems()) {
 			Package packge = listing.getPackageById(item.getId());
 			if (packge != null) {
 				total = total.add(packge.getEffectivePrice().multiply(quantity(item)));
