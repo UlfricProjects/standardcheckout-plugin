@@ -43,7 +43,7 @@ public class Tell {
 				} else {
 					target.spigot().sendMessage(component);
 				}
-			} catch (Throwable thatsOk) {
+			} catch (Throwable thatsOk) { // TODO remove throwable catch all
 				sendCenteredMessage(target, link.getTitle());
 				sendCenteredMessage(target, ChatColor.getLastColors(link.getTitle()) + ChatColor.UNDERLINE + link.getUrl());
 			}
