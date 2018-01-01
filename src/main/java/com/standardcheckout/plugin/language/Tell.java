@@ -2,10 +2,9 @@ package com.standardcheckout.plugin.language;
 
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
 
-import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.ClickEvent;
-import net.md_5.bungee.api.chat.ComponentBuilder;
 import net.md_5.bungee.api.chat.TextComponent;
 
 public class Tell {
@@ -37,11 +36,14 @@ public class Tell {
 		} else if (message instanceof Link) {
 			Link link = (Link) message;
 			try {
-				
 				TextComponent component = new TextComponent(TextComponent.fromLegacyText(withWhitespace(link.getTitle())));
 				component.setClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL, link.getUrl()));
-				target.spigot().sendMessage(component);
-			} catch (Exception thatsOk) {
+				if (target instanceof Player) {
+					((Player) target).spigot().sendMessage(component);
+				} else {
+					target.spigot().sendMessage(component);
+				}
+			} catch (Throwable thatsOk) {
 				sendCenteredMessage(target, link.getTitle());
 				sendCenteredMessage(target, ChatColor.getLastColors(link.getTitle()) + ChatColor.UNDERLINE + link.getUrl());
 			}
