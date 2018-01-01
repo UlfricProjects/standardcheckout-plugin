@@ -6,6 +6,9 @@ website: standardcheckout.com
 description: In-app purchases for Minecraft
 softdepend: [BuycraftX]
 commands:
+  standardcheckout:
+    aliases: [sco]
+    permission: standardcheckout.reload
   chargeplayer:
     usage: /<command> <player> item_name [$25 or id*quantity,id2,id3] command__to__run command__to__run2 ...
     permission: standardcheckout.chargeplayer

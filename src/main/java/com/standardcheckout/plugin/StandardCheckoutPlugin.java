@@ -3,6 +3,7 @@ package com.standardcheckout.plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import com.standardcheckout.plugin.command.ChargePlayerCommand;
+import com.standardcheckout.plugin.command.StandardCheckoutCommand;
 import com.standardcheckout.plugin.internal.PurchaseFlowListener;
 
 public class StandardCheckoutPlugin extends JavaPlugin {
@@ -19,8 +20,8 @@ public class StandardCheckoutPlugin extends JavaPlugin {
 		this.client = new StandardCheckoutClient();
 
 		getCommand("chargeplayer").setExecutor(new ChargePlayerCommand());
+		getCommand("standardcheckout").setExecutor(new StandardCheckoutCommand());
 		getServer().getPluginManager().registerEvents(new PurchaseFlowListener(), this);
-		getServer().getPluginManager().registerEvents(new Demo(), this);
 	}
 
 	public StandardCheckoutClient getClient() {
