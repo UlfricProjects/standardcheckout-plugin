@@ -112,6 +112,10 @@ public class PurchaseStage extends InventoryStage {
 
 		StandardCheckoutChargeResponse response = context.getBean(StandardCheckoutChargeResponse.class);
 		if (response.getState()) {
+			if (response.getError() != null) {
+				StandardCheckoutPlugin.getInstance().getLogger().severe(
+						"Successfully executed payment for " + context.getPlayerId() + ", but got error " + response.getState());
+			}
 			if (open) {
 				return new PurchaseSuccessStage(context);
 			} else {

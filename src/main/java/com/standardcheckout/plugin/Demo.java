@@ -1,5 +1,7 @@
 package com.standardcheckout.plugin;
 
+import java.math.BigDecimal;
+
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.OfflinePlayer;
@@ -13,6 +15,11 @@ import com.standardcheckout.plugin.flow.PurchaseCallback;
 import com.standardcheckout.plugin.flow.PurchaseFlow;
 
 public class Demo implements Listener {
+
+	public static void main(String[] args) {
+		BigDecimal cost = BigDecimal.valueOf(5);
+		System.out.println(cost.compareTo(BigDecimal.valueOf(500)));
+	}
 
 	@EventHandler
 	public void on(BlockBreakEvent event) {

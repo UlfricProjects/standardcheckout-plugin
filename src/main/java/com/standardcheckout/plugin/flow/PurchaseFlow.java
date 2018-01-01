@@ -1,6 +1,7 @@
 package com.standardcheckout.plugin.flow;
 
 import java.io.Closeable;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -38,6 +39,7 @@ public class PurchaseFlow implements Closeable {
 
 	public static final class Builder {
 		private final List<Item> items = new ArrayList<>();
+		private BigDecimal price;
 		private String name;
 		private PurchaseCallback callback;
 
@@ -48,8 +50,12 @@ public class PurchaseFlow implements Closeable {
 			Objects.requireNonNull(player, "player");
 			Objects.requireNonNull(name, "name");
 
-			if (items.isEmpty()) {
-				throw new IllegalArgumentException("Items are required");
+			if (items.isEmpty() && price == null) {
+				throw new IllegalArgumentException("items or price is required");
+			}
+
+			if (!items.isEmpty() && price != null) {
+				throw new IllegalArgumentException("either items or price must be specified, but not both");
 			}
 
 			return new PurchaseFlow(name, new ArrayList<>(items), player, callback);
@@ -57,6 +63,11 @@ public class PurchaseFlow implements Closeable {
 
 		public Builder name(String name) {
 			this.name = name;
+			return this;
+		}
+
+		public Builder price(BigDecimal price) {
+			this.price = price;
 			return this;
 		}
 
