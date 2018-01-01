@@ -22,7 +22,7 @@ import com.standardcheckout.plugin.flow.MutableFlowContext;
 import com.standardcheckout.plugin.flow.PurchaseDetails;
 import com.standardcheckout.plugin.flow.stage.InventoryStage;
 import com.standardcheckout.plugin.flow.stage.Stage;
-import com.standardcheckout.plugin.flow.stage.purchase.PurchaseStage;
+import com.standardcheckout.plugin.flow.stage.purchase.ChargeStage;
 import com.standardcheckout.plugin.helper.SoundHelper;
 import com.standardcheckout.plugin.language.Tell;
 import com.ulfric.buycraft.model.Item;
@@ -88,7 +88,7 @@ public class ConfirmationStage extends InventoryStage {
 			return null;
 		}
 
-		return new PurchaseStage(context);
+		return new ChargeStage(context);
 	}
 
 	@Override

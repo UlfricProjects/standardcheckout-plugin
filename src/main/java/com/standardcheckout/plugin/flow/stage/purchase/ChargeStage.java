@@ -23,7 +23,7 @@ import com.ulfric.buycraft.sco.model.StandardCheckoutChargeRequest;
 import com.ulfric.buycraft.sco.model.StandardCheckoutChargeResponse;
 import com.ulfric.buycraft.sco.model.StandardCheckoutError;
 
-public class PurchaseStage extends InventoryStage {
+public class ChargeStage extends InventoryStage {
 
 	private static final ItemStack VISUAL_ITEM_1;
 	private static final ItemStack VISUAL_ITEM_2;
@@ -47,7 +47,7 @@ public class PurchaseStage extends InventoryStage {
 	private int visualSlot;
 	private boolean alternate;
 
-	public PurchaseStage(FlowContext context) {
+	public ChargeStage(FlowContext context) {
 		super(context);
 	}
 
@@ -85,6 +85,7 @@ public class PurchaseStage extends InventoryStage {
 		request.setCart(details.getCart());
 		request.setPrice(details.getPrice());
 		request.setItemName(details.getCart() == null ? details.getName() : details.getCart().getTitle());
+		request.setReferrer(details.getReferrer());
 		request.setPurchaser(context.getPlayerId());
 
 		StandardCheckoutChargeResponse response = client.charge(request);
