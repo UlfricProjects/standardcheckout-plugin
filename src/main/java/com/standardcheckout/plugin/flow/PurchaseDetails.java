@@ -9,6 +9,7 @@ public class PurchaseDetails {
 	private BigDecimal price;
 	private Cart cart;
 	private String name;
+	private String referrer;
 
 	public BigDecimal getPrice() {
 		return price;
@@ -32,6 +33,14 @@ public class PurchaseDetails {
 
 	public void setName(String name) {
 		this.name = name;
+	}
+
+	public String getReferrer() {
+		return referrer;
+	}
+
+	public void setReferrer(String referrer) {
+		this.referrer = referrer;
 	}
 
 }

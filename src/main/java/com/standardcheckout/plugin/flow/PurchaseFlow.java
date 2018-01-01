@@ -43,6 +43,7 @@ public class PurchaseFlow implements Closeable {
 		private BigDecimal price;
 		private String name;
 		private PurchaseCallback callback;
+		private String referrer;
 
 		Builder() {
 		}
@@ -59,7 +60,7 @@ public class PurchaseFlow implements Closeable {
 				throw new IllegalArgumentException("either items or price must be specified, but not both");
 			}
 
-			return new PurchaseFlow(name, new ArrayList<>(items), price, player, callback);
+			return new PurchaseFlow(name, new ArrayList<>(items), price, player, callback, referrer);
 		}
 
 		public Builder name(String name) {
@@ -90,6 +91,11 @@ public class PurchaseFlow implements Closeable {
 			this.callback = callback;
 			return this;
 		}
+
+		public Builder referrer(String referrer) {
+			this.referrer = referrer;
+			return this;
+		}
 	}
 
 	private final MutableFlowContext context;
@@ -97,7 +103,7 @@ public class PurchaseFlow implements Closeable {
 	private Stage stage;
 	private PurchaseCallback callback;
 
-	private PurchaseFlow(String name, List<Item> items, BigDecimal price, Player player, PurchaseCallback callback) {
+	private PurchaseFlow(String name, List<Item> items, BigDecimal price, Player player, PurchaseCallback callback, String referrer) {
 		MetadataValue metadata = new FixedMetadataValue(StandardCheckoutPlugin.getInstance(), this);
 		player.setMetadata(METADATA_KEY, metadata);
 
