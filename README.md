@@ -26,7 +26,7 @@ PurchaseFlow.builder()
 
 		@Override
 		public void failure(OfflinePlayer player) {
-				Bukkit.getLogger().info("purchase failure");
+			Bukkit.getLogger().info("purchase failure - either because they need to authorize, or their card failed");
 			// The plugin will handle messaging automatically you
 			// can add some special failure logic here if you so desire
 		}
@@ -38,12 +38,12 @@ PurchaseFlow.builder()
 PurchaseFlow.builder()
 	.name("64 Diamonds")
 	.withItem(1, 64) // assumes you have a buycraft package with an id of '1'
-					// and you want to give the player 64 of that package.
-					// This uses buycraft for price calculation. additionally, any
-					// commands on the buycraft package will be run on buycraft's
-					// time via an automatic manual payment. Be careful with the quantity,
-					// it will create x amount of manual payments through the buycraft api.
-					// They don't support quantities in the manual payment logic.
+			// and you want to give the player 64 of that package.
+			// This uses buycraft for price calculation. additionally, any
+			// commands on the buycraft package will be run on buycraft's
+			// time via an automatic manual payment. Be careful with the quantity,
+			// it will create x amount of manual payments through the buycraft api.
+			// They don't support quantities in the manual payment logic.
 	.callback(new PurchaseCallback() {
 		@Override
 		public void success(OfflinePlayer player) {
