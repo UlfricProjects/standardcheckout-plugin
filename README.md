@@ -1,6 +1,8 @@
 # standardcheckout-plugin
 StandardCheckout Bukkit plugin
 
+Maven dependency (mvn install this first): https://github.com/UlfricProjects/buycraft
+
 # Examples
 
 ## Starting a checkout flow that skips buycraft-related actions
