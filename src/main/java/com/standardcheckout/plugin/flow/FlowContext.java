@@ -14,7 +14,7 @@ public interface FlowContext {
 	Optional<Player> getPlayer();
 
 	default Player getRequiredPlayer() {
-		return getPlayer().orElseThrow(() -> new IllegalStateException("The player is not online"));
+		return getPlayer().orElseThrow(() -> new IllegalStateException("Player " + getPlayerId() + " is not online"));
 	}
 
 	UUID getPlayerId();
