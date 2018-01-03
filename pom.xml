@@ -109,11 +109,6 @@
 					<minimizeJar>true</minimizeJar>
 					<relocations>
 						<relocation>
-							<pattern>io.undertow</pattern>
-							<shadedPattern>com.standardcheckout.internal.undertow</shadedPattern>
-						</relocation>
-
-						<relocation>
 							<pattern>okhttp3</pattern>
 							<shadedPattern>com.standardcheckout.internal.okhttp</shadedPattern>
 						</relocation>
@@ -121,11 +116,6 @@
 						<relocation>
 							<pattern>okio</pattern>
 							<shadedPattern>com.standardcheckout.internal.okio</shadedPattern>
-						</relocation>
-
-						<relocation>
-							<pattern>org.xnio</pattern>
-							<shadedPattern>com.standardcheckout.internal.xnio</shadedPattern>
 						</relocation>
 					</relocations>
 				</configuration>
@@ -161,9 +151,15 @@
 		</dependency>
 
 		<dependency>
-			<groupId>io.undertow</groupId>
-			<artifactId>undertow-core</artifactId>
-			<version>1.4.21.Final</version>
+			<groupId>javax.websocket</groupId>
+			<artifactId>javax.websocket-api</artifactId>
+			<version>1.1</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.glassfish.tyrus</groupId>
+			<artifactId>tyrus-client</artifactId>
+			<version>1.1</version>
 		</dependency>
 
 		<dependency>

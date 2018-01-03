@@ -6,9 +6,9 @@ import com.standardcheckout.plugin.flow.FlowContext;
 import com.standardcheckout.plugin.flow.stage.FinalStage;
 import com.standardcheckout.plugin.language.Tell;
 
-public class PurchaseFailedStage extends FinalStage {
+public class PaymentDeclinedStage extends FinalStage {
 
-	public PurchaseFailedStage(FlowContext context) {
+	public PaymentDeclinedStage(FlowContext context) {
 		super(context);
 	}
 

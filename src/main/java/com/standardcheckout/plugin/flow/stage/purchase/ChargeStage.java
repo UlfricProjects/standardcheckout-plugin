@@ -21,7 +21,7 @@ import com.standardcheckout.plugin.flow.stage.Stage;
 import com.standardcheckout.plugin.language.Tell;
 import com.ulfric.buycraft.sco.model.StandardCheckoutChargeRequest;
 import com.ulfric.buycraft.sco.model.StandardCheckoutChargeResponse;
-import com.ulfric.buycraft.sco.model.StandardCheckoutError;
+import com.ulfric.buycraft.sco.model.StandardCheckoutChargeState;
 
 public class ChargeStage extends InventoryStage {
 
@@ -113,22 +113,35 @@ public class ChargeStage extends InventoryStage {
 		}
 
 		StandardCheckoutChargeResponse response = context.getBean(StandardCheckoutChargeResponse.class);
-		if (response.getState()) {
+		StandardCheckoutChargeState state = response.getState();
+		if (state != null) {
 			if (response.getError() != null) {
-				StandardCheckoutPlugin.getInstance().getLogger().severe(
+				StandardCheckoutPlugin.getInstance().getLogger().warning(
 						"Successfully executed payment for " + context.getPlayerId() + ", but got error " + response.getError());
 			}
-			if (open) {
-				return new PurchaseSuccessStage(context);
-			} else {
-				return new PackageDeliveryStage(context);
+
+			switch (state) {
+				case DECLINED:
+					return new PaymentDeclinedStage(context);
+
+				case ACCOUNT_DISABLED:
+					return new AccountEnableRequiredStage(context);
+
+				case REQUIRES_AUTHORIZATION:
+					return new ServerAuthorizationRequiredStage(context);
+
+				case REQUIRES_PAYMENT_METHOD:
+					return new PaymentDetailsRequiredStage(context);
+
+				case SUCCESS:
+					return open ? new PurchaseSuccessStage(context) : new PackageDeliveryStage(context);
+
+				default:
+					throw new IllegalArgumentException("Can't handle " + state);
 			}
 		}
 
 		if (response.getError() != null) {
-			if (response.getError() == StandardCheckoutError.PAYMENT_FAILED) {
-				return new PurchaseFailedStage(context);
-			}
 			new RuntimeException("StandardCheckout error " + response.getError()).printStackTrace(); // TODO proper error handling
 			return new ErrorStage(context);
 		}
