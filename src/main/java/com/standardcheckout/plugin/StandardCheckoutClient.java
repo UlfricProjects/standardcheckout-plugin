@@ -1,6 +1,9 @@
 package com.standardcheckout.plugin;
 
+import java.io.Closeable;
 import java.io.IOException;
+import java.io.UncheckedIOException;
+import java.util.Objects;
 
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -17,12 +20,20 @@ import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
 
-public class StandardCheckoutClient {
+public class StandardCheckoutClient implements Closeable {
 
 	public static final MediaType JSON = MediaType.parse("application/json; charset=utf-8");
 
+	private final StandardCheckoutConfig config;
+	private final Gson gson;
 	private final OkHttpClient client = new OkHttpClient();
-	private final Gson gson = new Gson();
+
+	public StandardCheckoutClient(StandardCheckoutConfig config) {
+		Objects.requireNonNull(config, "config");
+
+		this.gson = new Gson();
+		this.config = config;
+	}
 
 	public StandardCheckoutChargeResponse charge(StandardCheckoutChargeRequest request) {
 		if (request.getBuycraftToken() == null && request.getPrice() == null) {
@@ -33,7 +44,7 @@ public class StandardCheckoutClient {
 		StandardCheckoutPlugin plugin = StandardCheckoutPlugin.getInstance();
 
 		if (request.getScoToken() == null) {
-			String token = plugin.getToken();
+			String token = plugin.getSecret();
 			request.setScoToken(token);
 		}
 
@@ -43,8 +54,7 @@ public class StandardCheckoutClient {
 		}
 
 		String json = gson.toJson(request);
-		Request post = new Request.Builder()
-				.cacheControl(CacheControl.FORCE_NETWORK)
+		Request post = requestBuilder()
 				.addHeader("Accept", "application/json")
 				.addHeader("User-Agent", "StandardCheckout")
 				.url(plugin.getApiGateway() + "/api/charge")
@@ -61,10 +71,31 @@ public class StandardCheckoutClient {
 		}
 	}
 
+	private Request.Builder requestBuilder() {
+		Request.Builder builder = new Request.Builder();
+		if (config.getCacheControlForceNetwork()) {
+			builder = builder.cacheControl(CacheControl.FORCE_NETWORK);
+		}
+		return builder;
+	}
+
 	private StandardCheckoutChargeResponse internalError() {
 		StandardCheckoutChargeResponse response = new StandardCheckoutChargeResponse();
 		response.setError(StandardCheckoutError.INTERNAL_ERROR);
 		return response;
+	}
+
+	@Override
+	public void close() {
+		client.dispatcher().executorService().shutdown();
+		client.connectionPool().evictAll();
+		if (client.cache() != null) {
+			try {
+				client.cache().close();
+			} catch (IOException exception) {
+				throw new UncheckedIOException(exception);
+			}
+		}
 	}
 
 }

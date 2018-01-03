@@ -1,3 +1,14 @@
-standard-checkout-token: YOUR_WEBSTORE_TOKEN_HERE
-standard-checkout-gateway: https://standardcheckout.com
-standard-checkout-webstore: YOUR_WEBSTORE_NAME_HERE
+# Don't touch this
+config-version: 1
+
+# Get this from your admin control panel on https://standardcheckout.com
+secret: "YOUR_WEBSTORE_SECRET_HERE"
+
+# The name of your webstore, set when you signed up through our website
+webstore: "YOUR_WEBSTORE_NAME_HERE"
+
+# Don't touch this
+gateway: "https://standardcheckout.com"
+
+# An advanced setting, don't change this unless you know what you're doing
+force-network: true
