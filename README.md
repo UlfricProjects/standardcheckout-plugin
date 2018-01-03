@@ -65,6 +65,7 @@ public class Example implements CommandExecutor {
 						// you are responsible for handling this & making sure a player
 						// gets their items. the chances of this being true are pretty slim,
 						// but it could happen
+						return;
 					}
 
 					online.getInventory().addItem(new ItemStack(Material.DIAMOND, 64));
