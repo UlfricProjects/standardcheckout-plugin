@@ -5,84 +5,66 @@ StandardCheckout Bukkit plugin
 
 ## Starting a checkout flow that skips buycraft-related actions
 ```
-public class Demo implements Listener {
+PurchaseFlow.builder()
+		.name("Diamonds")
+		.price(BigDecimal.valueOf(20))
+		.callback(new PurchaseCallback() {
+			@Override
+			public void success(OfflinePlayer player) {
+				Player online = player.getPlayer();
+				if (online == null) {
+					// you are responsible for handling this & making sure a player
+					// gets their items. the chances of this being true are pretty slim,
+					// but it could happen
+					Bukkit.getLogger().info("player is offline");
+					return;
+				}
 
-	@EventHandler
-	public void on(BlockBreakEvent event) {
-		Player player = event.getPlayer();
+				Bukkit.getLogger().info("purchase success");
+				online.getInventory().addItem(new ItemStack(Material.DIAMOND_BLOCK, 64));
+			}
 
-		PurchaseFlow.builder()
-				.name("Diamonds")
-				.price(BigDecimal.valueOf(20))
-				.callback(new PurchaseCallback() {
-					@Override
-					public void success(OfflinePlayer player) {
-						Player online = player.getPlayer();
-						if (online == null) {
-							// you are responsible for handling this & making sure a player
-							// gets their items. the chances of this being true are pretty slim,
-							// but it could happen
-							Bukkit.getLogger().info("player is offline");
-							return;
-						}
-
-						Bukkit.getLogger().info("purchase success");
-						online.getInventory().addItem(new ItemStack(Material.DIAMOND_BLOCK, 64));
-					}
-
-					@Override
-					public void failure(OfflinePlayer player) {
-						Bukkit.getLogger().info("purchase failure");
-						// The plugin will handle messaging automatically you
-						// can add some special failure logic here if you so desire
-					}
-				}).begin(player);
-	}
-
-}
-
+			@Override
+			public void failure(OfflinePlayer player) {
+				Bukkit.getLogger().info("purchase failure");
+				// The plugin will handle messaging automatically you
+				// can add some special failure logic here if you so desire
+			}
+		}).begin(Bukkit.getPlayer("Packet"));
 ```
 
 ## Starting a checkout flow that communicates with buycraft
 ```
-public class Example implements CommandExecutor {
+PurchaseFlow.builder()
+	.name("64 Diamonds")
+	.withItem(1, 64) // assumes you have a buycraft package with an id of '1'
+					// and you want to give the player 64 of that package.
+					// This uses buycraft for price calculation. additionally, any
+					// commands on the buycraft package will be run on buycraft's
+					// time via an automatic manual payment. Be careful with the quantity,
+					// it will create x amount of manual payments through the buycraft api.
+					// They don't support quantities in the manual payment logic.
+	.callback(new PurchaseCallback() {
+		@Override
+		public void success(OfflinePlayer player) {
+			Player online = player.getPlayer();
+			if (online == null) {
+				// you are responsible for handling this & making sure a player
+				// gets their items. the chances of this being true are pretty slim,
+				// but it could happen
+				return;
+			}
 
-	@Override
-	public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
-		Player player = (Player) sender;
+			online.getInventory().addItem(new ItemStack(Material.DIAMOND, 64));
+		}
 
-		PurchaseFlow.builder()
-			.name("64 Diamonds")
-			.withItem(1, 64) // assumes you have a buycraft package with an id of '1'
-							// this is how price is calculated. additionally, any
-							// commands on the buycraft package will be run on buycraft's
-							// time via an automatic manual payment
-			.callback(new PurchaseCallback() {
-				@Override
-				public void success(OfflinePlayer player) {
-					Player online = player.getPlayer();
-					if (online == null) {
-						// you are responsible for handling this & making sure a player
-						// gets their items. the chances of this being true are pretty slim,
-						// but it could happen
-						return;
-					}
-
-					online.getInventory().addItem(new ItemStack(Material.DIAMOND, 64));
-				}
-
-				@Override
-				public void failure(OfflinePlayer player) {
-					// The plugin will handle messaging automatically you
-					// can add some special failure logic here if you so desire
-				}
-			})
-			.begin(player);
-
-		return false;
-	}
-
-}
+		@Override
+		public void failure(OfflinePlayer player) {
+			// The plugin will handle messaging automatically you
+			// can add some special failure logic here if you so desire
+		}
+	})
+	.begin(player);
 ```
 
 ## Resuming a flow when a player joins
