@@ -44,25 +44,16 @@ PurchaseFlow.builder()
 			// time via an automatic manual payment. Be careful with the quantity,
 			// it will create x amount of manual payments through the buycraft api.
 			// They don't support quantities in the manual payment logic.
-	.callback(new PurchaseCallback() {
-		@Override
-		public void success(OfflinePlayer player) {
-			Player online = player.getPlayer();
-			if (online == null) {
-				// you are responsible for handling this & making sure a player
-				// gets their items. the chances of this being true are pretty slim,
-				// but it could happen
-				return;
-			}
-
-			online.getInventory().addItem(new ItemStack(Material.DIAMOND, 64));
+	.callback(PurchaseCallback.success(offlinePlayer -> { // uses a lambda, the failure method is ignored
+		Player online = player.getPlayer();
+		if (online == null) {
+			// you are responsible for handling this & making sure a player
+			// gets their items. the chances of this being true are pretty slim,
+			// but it could happen
+			return;
 		}
 
-		@Override
-		public void failure(OfflinePlayer player) {
-			// The plugin will handle messaging automatically you
-			// can add some special failure logic here if you so desire
-		}
+		online.getInventory().addItem(new ItemStack(Material.DIAMOND, 64));
 	})
 	.begin(player);
 ```
