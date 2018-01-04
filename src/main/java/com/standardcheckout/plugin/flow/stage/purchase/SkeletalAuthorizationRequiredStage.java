@@ -7,14 +7,17 @@ import com.standardcheckout.plugin.flow.FlowContext;
 import com.standardcheckout.plugin.flow.stage.FinalStage;
 import com.standardcheckout.plugin.language.Link;
 import com.standardcheckout.plugin.language.Tell;
+import com.ulfric.buycraft.sco.model.StandardCheckoutChargeState;
 
 public class SkeletalAuthorizationRequiredStage extends FinalStage {
 
 	private final String authorizationMessage;
+	private final StandardCheckoutChargeState state;
 
-	public SkeletalAuthorizationRequiredStage(FlowContext context, String authorizationMessage) {
+	public SkeletalAuthorizationRequiredStage(FlowContext context, String authorizationMessage, StandardCheckoutChargeState state) {
 		super(context);
 		this.authorizationMessage = authorizationMessage;
+		this.state = state;
 	}
 
 	@Override
@@ -27,7 +30,7 @@ public class SkeletalAuthorizationRequiredStage extends FinalStage {
 			Tell.sendMessages(player, link, "");
 		});
 
-		context.flow().finish(false);
+		context.flow().finish(state);
 	}
 
 	@Override

@@ -18,6 +18,7 @@ import com.standardcheckout.plugin.flow.stage.confirmation.ConfirmationStage;
 import com.standardcheckout.plugin.internal.PlayerReference;
 import com.standardcheckout.plugin.model.Cart;
 import com.ulfric.buycraft.model.Item;
+import com.ulfric.buycraft.sco.model.StandardCheckoutChargeState;
 
 public class PurchaseFlow implements Closeable {
 
@@ -137,16 +138,12 @@ public class PurchaseFlow implements Closeable {
 		stage.close();
 	}
 
-	public void finish(boolean success) {
+	public void finish(StandardCheckoutChargeState state) {
 		close();
 		stage = null;
 
 		if (callback != null) {
-			if (success) {
-				callback.success(player.getOffline());
-			} else {
-				callback.failure(player.getOffline());
-			}
+			callback.handle(state, player.getOffline());
 		}
 	}
 
@@ -166,7 +163,7 @@ public class PurchaseFlow implements Closeable {
 		if (this.stage != null) {
 			this.stage.play();
 		} else {
-			finish(false);
+			finish(StandardCheckoutChargeState.CANCELLED);
 		}
 	}
 

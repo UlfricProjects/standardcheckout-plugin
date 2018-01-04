@@ -8,7 +8,6 @@ import java.util.regex.Pattern;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
-import org.bukkit.OfflinePlayer;
 import org.bukkit.Server;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -58,26 +57,23 @@ public class ChargePlayerCommand implements CommandExecutor {
 		for (int x = 3; x < args.length; x++) {
 			commands.add(args[x]);
 		}
-		builder = builder.callback(new PurchaseCallback() {
-			@Override
-			public void success(OfflinePlayer player) {
-				Server server = StandardCheckoutPlugin.getInstance().getServer();
-				for (String command : commands) {
-					command = command.replace("__", " ");
-					command = command.replace("{name}", player.getName());
-					command = command.replace("{uuid}", player.getUniqueId().toString());
-					server.dispatchCommand(server.getConsoleSender(), command);
-				}
-			}
-
-			@Override
-			public void failure(OfflinePlayer player) {
-			}
-		});
+		builder = builder.callback(callback(commands));
 
 		builder.begin(player);
 
 		return true;
+	}
+
+	private PurchaseCallback callback(List<String> commands) {
+		return PurchaseCallback.success(purchaser -> {
+			Server server = StandardCheckoutPlugin.getInstance().getServer();
+			for (String execute : commands) {
+				execute = execute.replace("__", " ");
+				execute = execute.replace("{name}", purchaser.getName());
+				execute = execute.replace("{uuid}", purchaser.getUniqueId().toString());
+				server.dispatchCommand(server.getConsoleSender(), execute);
+			}
+		});
 	}
 
 }

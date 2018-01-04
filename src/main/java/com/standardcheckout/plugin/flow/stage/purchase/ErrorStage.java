@@ -5,6 +5,7 @@ import org.bukkit.ChatColor;
 import com.standardcheckout.plugin.flow.FlowContext;
 import com.standardcheckout.plugin.flow.stage.FinalStage;
 import com.standardcheckout.plugin.language.Tell;
+import com.ulfric.buycraft.sco.model.StandardCheckoutChargeState;
 
 public class ErrorStage extends FinalStage {
 
@@ -16,7 +17,7 @@ public class ErrorStage extends FinalStage {
 	public void play() {
 		context.getPlayer().ifPresent(player -> Tell.sendMessages(player, ChatColor.RED + "An error prevented us from processing your payment"));
 
-		context.flow().finish(false);
+		context.flow().finish(StandardCheckoutChargeState.CANCELLED);
 	}
 
 	@Override

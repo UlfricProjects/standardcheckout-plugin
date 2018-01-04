@@ -10,28 +10,16 @@ Maven dependency (mvn install this first): https://github.com/UlfricProjects/buy
 PurchaseFlow.builder()
 	.name("Diamonds")
 	.price(BigDecimal.valueOf(20))
-	.callback(new PurchaseCallback() {
-		@Override
-		public void success(OfflinePlayer player) {
-			Player online = player.getPlayer();
-			if (online == null) {
-				// you are responsible for handling this & making sure a player
-				// gets their items. the chances of this being true are pretty slim,
-				// but it could happen
-				Bukkit.getLogger().info("player is offline");
-				return;
-			}
-
-			Bukkit.getLogger().info("purchase success");
-			online.getInventory().addItem(new ItemStack(Material.DIAMOND_BLOCK, 64));
+	.callback(PurchaseCallback.success(offlinePlayer -> { // uses a lambda, the failure method is ignored
+		Player online = player.getPlayer();
+		if (online == null) {
+			// you are responsible for handling this & making sure a player
+			// gets their items. the chances of this being true are pretty slim,
+			// but it could happen
+			return;
 		}
 
-		@Override
-		public void failure(OfflinePlayer player) {
-			Bukkit.getLogger().info("purchase failure - either because they need to authorize, or their card failed");
-			// The plugin will handle messaging automatically you
-			// can add some special failure logic here if you so desire
-		}
+		online.getInventory().addItem(new ItemStack(Material.DIAMOND, 64));
 	}).begin(Bukkit.getPlayer("Packet"));
 ```
 
@@ -46,18 +34,24 @@ PurchaseFlow.builder()
 			// time via an automatic manual payment. Be careful with the quantity,
 			// it will create x amount of manual payments through the buycraft api.
 			// They don't support quantities in the manual payment logic.
-	.callback(PurchaseCallback.success(offlinePlayer -> { // uses a lambda, the failure method is ignored
-		Player online = player.getPlayer();
-		if (online == null) {
-			// you are responsible for handling this & making sure a player
-			// gets their items. the chances of this being true are pretty slim,
-			// but it could happen
-			return;
+	.callback(new PurchaseCallback() {
+		@Override
+		public void handle(StandardCheckoutChargeState state, OfflinePlayer player) {
+			if (state == StandardCheckoutChargeState.SUCCESS) {
+				Player online = player.getPlayer();
+				if (online == null) {
+					// you are responsible for handling this & making sure a player
+					// gets their items. the chances of this being true are pretty slim,
+					// but it could happen
+					Bukkit.getLogger().info("player is offline");
+					return;
+				}
+	
+				Bukkit.getLogger().info("purchase success");
+				online.getInventory().addItem(new ItemStack(Material.DIAMOND_BLOCK, 64));
+			}
 		}
-
-		online.getInventory().addItem(new ItemStack(Material.DIAMOND, 64));
-	})
-	.begin(player);
+	}).begin(player);
 ```
 
 ## Resuming a flow when a player joins

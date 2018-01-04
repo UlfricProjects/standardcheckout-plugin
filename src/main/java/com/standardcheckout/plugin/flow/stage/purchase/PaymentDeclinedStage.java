@@ -5,6 +5,7 @@ import org.bukkit.ChatColor;
 import com.standardcheckout.plugin.flow.FlowContext;
 import com.standardcheckout.plugin.flow.stage.FinalStage;
 import com.standardcheckout.plugin.language.Tell;
+import com.ulfric.buycraft.sco.model.StandardCheckoutChargeState;
 
 public class PaymentDeclinedStage extends FinalStage {
 
@@ -17,7 +18,7 @@ public class PaymentDeclinedStage extends FinalStage {
 		// TODO send them a link to update their payment card
 		context.getPlayer().ifPresent(player -> Tell.sendMessages(player, ChatColor.RED + "Your payment card could not be charged."));
 
-		context.flow().finish(false);
+		context.flow().finish(StandardCheckoutChargeState.DECLINED);
 	}
 
 	@Override
