@@ -81,7 +81,11 @@ public class PurchaseFlow implements Closeable {
 			return this;
 		}
 
-		public Builder withItem(Integer id, int quantity) {
+		public Builder withItem(Integer id) {
+			return withItem(id, 1);
+		}
+
+		public Builder withItem(Integer id, Integer quantity) {
 			Item item = new Item();
 			item.setId(id);
 			item.setQuantity(quantity);

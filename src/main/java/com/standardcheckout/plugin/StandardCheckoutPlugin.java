@@ -6,6 +6,8 @@ import com.standardcheckout.plugin.command.ChargePlayerCommand;
 import com.standardcheckout.plugin.command.StandardCheckoutCommand;
 import com.standardcheckout.plugin.internal.PurchaseFlowListener;
 
+import net.buycraft.plugin.bukkit.tasks.SendCheckoutLink;
+
 public class StandardCheckoutPlugin extends JavaPlugin implements StandardCheckoutConfig {
 
 	public static StandardCheckoutPlugin getInstance() {
@@ -22,6 +24,15 @@ public class StandardCheckoutPlugin extends JavaPlugin implements StandardChecko
 		getCommand("chargeplayer").setExecutor(new ChargePlayerCommand());
 		getCommand("standardcheckout").setExecutor(new StandardCheckoutCommand());
 		getServer().getPluginManager().registerEvents(new PurchaseFlowListener(), this);
+
+		if (getConfig().getBoolean("override-buycraft-buy-gui")) {
+			String simpleName = SendCheckoutLink.class.getSimpleName();
+			if (JavaPlugin.getProvidingPlugin(SendCheckoutLink.class) == this) {
+				getLogger().info("Overriding the /buy gui at " + simpleName);
+			} else {
+				getLogger().info("Could not override the /buy gui");
+			}
+		}
 	}
 
 	@Override

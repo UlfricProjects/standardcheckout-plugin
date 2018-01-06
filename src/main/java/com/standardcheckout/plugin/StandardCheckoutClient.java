@@ -5,14 +5,12 @@ import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.util.Objects;
 
-import org.bukkit.plugin.java.JavaPlugin;
-
 import com.google.gson.Gson;
+import com.standardcheckout.buycraft.BuycraftHook;
 import com.ulfric.buycraft.sco.model.StandardCheckoutChargeRequest;
 import com.ulfric.buycraft.sco.model.StandardCheckoutChargeResponse;
 import com.ulfric.buycraft.sco.model.StandardCheckoutError;
 
-import net.buycraft.plugin.bukkit.BuycraftPlugin;
 import okhttp3.CacheControl;
 import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
@@ -37,8 +35,9 @@ public class StandardCheckoutClient implements Closeable {
 
 	public StandardCheckoutChargeResponse charge(StandardCheckoutChargeRequest request) {
 		if (request.getBuycraftToken() == null && request.getPrice() == null) {
-			BuycraftPlugin buycraft = JavaPlugin.getPlugin(BuycraftPlugin.class);
-			request.setBuycraftToken(buycraft.getConfiguration().getServerKey());
+			String secret = BuycraftHook.getBuycraftSecret()
+					.orElseThrow(() -> new IllegalStateException("price not specified, and buycraft is not loaded"));
+			request.setBuycraftToken(secret);
 		}
 
 		StandardCheckoutPlugin plugin = StandardCheckoutPlugin.getInstance();

@@ -4,7 +4,7 @@ version: ${project.version}
 author: Ulfric LLC
 website: standardcheckout.com
 description: In-app purchases for Minecraft
-softdepend: [BuycraftX]
+loadbefore: [BuycraftX]
 commands:
   standardcheckout:
     aliases: [sco]

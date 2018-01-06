@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.text.NumberFormat;
 import java.util.Arrays;
+import java.util.Optional;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -15,8 +16,8 @@ import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
-import org.bukkit.plugin.java.JavaPlugin;
 
+import com.standardcheckout.buycraft.BuycraftHook;
 import com.standardcheckout.plugin.flow.FlowContext;
 import com.standardcheckout.plugin.flow.MutableFlowContext;
 import com.standardcheckout.plugin.flow.PurchaseDetails;
@@ -25,11 +26,6 @@ import com.standardcheckout.plugin.flow.stage.Stage;
 import com.standardcheckout.plugin.flow.stage.purchase.ChargeStage;
 import com.standardcheckout.plugin.helper.SoundHelper;
 import com.standardcheckout.plugin.language.Tell;
-import com.ulfric.buycraft.model.Item;
-
-import net.buycraft.plugin.bukkit.BuycraftPlugin;
-import net.buycraft.plugin.data.Package;
-import net.buycraft.plugin.shared.tasks.ListingUpdateTask;
 
 public class ConfirmationStage extends InventoryStage {
 
@@ -66,19 +62,15 @@ public class ConfirmationStage extends InventoryStage {
 			return cart.getPrice().setScale(2, RoundingMode.HALF_UP);
 		}
 
-		BigDecimal total = BigDecimal.ZERO;
-		ListingUpdateTask listing = JavaPlugin.getPlugin(BuycraftPlugin.class).getListingUpdateTask();
-		for (Item item : cart.getCart().getItems()) {
-			Package packge = listing.getPackageById(item.getId());
-			if (packge != null) {
-				total = total.add(packge.getEffectivePrice().multiply(quantity(item)));
-			}
-		}
+		BigDecimal total = cart.getCart()
+			.getItems()
+			.stream()
+			.map(BuycraftHook::getFinalPrice)
+			.filter(Optional::isPresent) // TODO warnings
+			.map(Optional::get)
+			.reduce(BigDecimal::add)
+			.orElse(BigDecimal.ZERO);
 		return total.setScale(2, RoundingMode.HALF_UP);
-	}
-
-	private BigDecimal quantity(Item item) {
-		return item.getQuantity() == null || item.getQuantity().equals(0) ? BigDecimal.ONE : BigDecimal.valueOf(item.getQuantity());
 	}
 
 	@Override
